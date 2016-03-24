@@ -7,12 +7,25 @@
  * Free to use under the MIT license.
  */
 
-namespace App;
+namespace BearFramework\App;
 
 /**
  * Provides information about the application location and utility functions
  */
-class AppContext extends \App\Context
+class AppContext extends \BearFramework\App\Context
 {
-    
+
+    /**
+     * The constructor
+     * @param string $dir The directory where the application is located 
+     * @throws \InvalidArgumentException
+     */
+    public function __construct($dir)
+    {
+        if (!is_string($dir)) {
+            throw new \InvalidArgumentException('');
+        }
+        parent::__construct($dir);
+    }
+
 }

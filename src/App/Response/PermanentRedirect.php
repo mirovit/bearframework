@@ -7,12 +7,12 @@
  * Free to use under the MIT license.
  */
 
-namespace App\Response;
+namespace BearFramework\App\Response;
 
 /**
  * Response type that makes permanent redirect
  */
-class PermanentRedirect extends \App\Response
+class PermanentRedirect extends \BearFramework\App\Response
 {
 
     /**
@@ -20,7 +20,7 @@ class PermanentRedirect extends \App\Response
      * @param string $url The redirect url
      * @throws \InvalidArgumentException
      */
-    function __construct($url)
+    public function __construct($url)
     {
         if (!is_string($url)) {
             throw new \InvalidArgumentException('The url argument must be of type string');

@@ -7,7 +7,9 @@
  * Free to use under the MIT license.
  */
 
-namespace App\Context;
+namespace BearFramework\App\Context;
+
+use BearFramework\App;
 
 /**
  * Provides functionality for autoloading classes in the current context
@@ -27,7 +29,7 @@ class Classes
      * @throws \InvalidArgumentException
      * @return void No value is returned
      */
-    function __construct($dir)
+    public function __construct($dir)
     {
         if (!is_string($dir)) {
             throw new \InvalidArgumentException('');
@@ -42,7 +44,7 @@ class Classes
      * @throws \InvalidArgumentException
      * @return void No value is returned
      */
-    function add($class, $filename)
+    public function add($class, $filename)
     {
         if (!is_string($class)) {
             throw new \InvalidArgumentException('');
@@ -50,7 +52,7 @@ class Classes
         if (!is_string($filename)) {
             throw new \InvalidArgumentException('');
         }
-        $app = &\App::$instance;
+        $app = &App::$instance;
         $app->classes->add($class, $this->dir . $filename);
     }
 

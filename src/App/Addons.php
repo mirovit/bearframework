@@ -7,7 +7,9 @@
  * Free to use under the MIT license.
  */
 
-namespace App;
+namespace BearFramework\App;
+
+use BearFramework\App;
 
 /**
  * Provides a way to enable addons and manage their options
@@ -16,70 +18,72 @@ class Addons
 {
 
     /**
-     * Contains the options for the added addons
+     * Added addons
      * @var array 
      */
-    private $options = [];
+    private $data = [];
 
     /**
      * Enables an addon and saves the provided options
-     * @param string $id The id of the addon
+     * @param string $name The name of the addon
      * @param array $options The options of the addon
      * @throws \InvalidArgumentException
-     * @return void No value is returned
+     * @throws \Exception
+     * @return boolean TRUE if successfully loaded. FALSE otherwise.
      */
-    function add($id, $options = [])
+    public function add($name, $options = [])
     {
-        if (!is_string($id)) {
+        if (!is_string($name)) {
             throw new \InvalidArgumentException('');
         }
         if (!is_array($options)) {
             throw new \InvalidArgumentException('');
         }
-        $this->options[$id] = ['options' => $options];
-        $this->load($id);
+        if (isset($this->data[$name])) {
+            return false;
+        }
+        $addonDefinitionOptions = \BearFramework\Addons::getOptions($name);
+        if (isset($addonDefinitionOptions['require']) && is_array($addonDefinitionOptions['require'])) {
+            foreach ($addonDefinitionOptions['require'] as $requiredAddonName) {
+                if (is_string($requiredAddonName)) {
+                    $this->add($requiredAddonName);
+                }
+            }
+        }
+        $pathname = \BearFramework\Addons::getDir($name);
+        $pathname = rtrim($pathname, '/\\') . '/';
+        $this->data[$name] = [
+            'pathname' => $pathname,
+            'options' => $options
+        ];
+
+        $__indexFilename = realpath($pathname . 'index.php');
+        if ($__indexFilename !== false) {
+            $app = &App::$instance; // Needed for the index file
+            $context = new App\AddonContext($pathname);
+            $context->options = $options;
+            unset($name); // Hide this variable from the file scope
+            unset($pathname); // Hide this variable from the file scope
+            unset($options); // Hide this variable from the file scope
+            unset($addonDefinitionOptions); // Hide this variable from the file scope
+            include_once $__indexFilename;
+            return true;
+        } else {
+            throw new \Exception('Addon index file not found');
+        }
     }
 
     /**
-     * Loads the addon index file
-     * @param string $id The id of the addon
-     * @throws \Exception
-     * @throws \InvalidArgumentException
-     * @return void No value is returned
+     * Returns list of the added addons
+     * @return array List of the added addons
      */
-    private function load($id)
+    public function getList()
     {
-        if (!is_string($id)) {
-            throw new \InvalidArgumentException('');
+        $result = [];
+        foreach ($this->data as $name => $data) {
+            $result[] = array_merge(['name' => $name], $data);
         }
-        $app = &\App::$instance;
-        $__id = $id;
-        unset($id);
-        if ($app->config->addonsDir === null) {
-            throw new \Exception('Config option addonsDir not set');
-        }
-        $__indexFile = realpath($app->config->addonsDir . $__id . '/index.php');
-        if ($__indexFile !== false) {
-            $context = new \App\AddonContext($app->config->addonsDir . $__id . '/');
-            include_once $__indexFile;
-        }
-    }
-
-    /**
-     * Returns the options set for the addon specified
-     * @param string $id
-     * @throws \InvalidArgumentException
-     * @return array The options set for the addon specified
-     */
-    function getOptions($id)
-    {
-        if (!is_string($id)) {
-            throw new \InvalidArgumentException('');
-        }
-        if (isset($this->options[$id])) {
-            return $this->options[$id]['options'];
-        }
-        return [];
+        return $result;
     }
 
 }

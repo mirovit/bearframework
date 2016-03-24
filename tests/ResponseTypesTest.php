@@ -8,105 +8,119 @@
  */
 
 /**
- * 
+ * @runTestsInSeparateProcesses
  */
-class ResponseTypesTest extends PHPUnit_Framework_TestCase
+class ResponseTypesTest extends BearFrameworkTestCase
 {
 
     /**
-     * @runInSeparateProcess
+     * 
      */
-    public function testFileReader()
+    public function testFileReader1()
     {
-        $response = new App\Response\FileReader('filename.txt');
+        $response = new \BearFramework\App\Response\FileReader('filename.txt');
         $this->assertTrue($response->filename === 'filename.txt');
 
         $this->setExpectedException('InvalidArgumentException');
-        $response = new App\Response\FileReader(1);
+        $response = new \BearFramework\App\Response\FileReader(1);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
+     */
+    public function testFileReader2()
+    {
+        $app = $this->getApp();
+        $this->createFile($app->config->appDir . 'file', '123');
+        $app->routes->add('/', function() use ($app) {
+            return new \BearFramework\App\Response\FileReader($app->config->appDir . 'file');
+        });
+        $app->run();
+        $this->expectOutputString('123');
+    }
+
+    /**
+     * 
      */
     public function testHTML()
     {
-        $response = new App\Response\HTML('content');
+        $response = new \BearFramework\App\Response\HTML('content');
         $this->assertTrue($response->content === 'content');
 
         $this->setExpectedException('InvalidArgumentException');
-        $response = new App\Response\HTML(1);
+        $response = new \BearFramework\App\Response\HTML(1);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testJSON()
     {
-        $response = new App\Response\JSON('content');
+        $response = new \BearFramework\App\Response\JSON('content');
         $this->assertTrue($response->content === 'content');
 
         $this->setExpectedException('InvalidArgumentException');
-        $response = new App\Response\JSON(1);
+        $response = new \BearFramework\App\Response\JSON(1);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testText()
     {
-        $response = new App\Response\Text('content');
+        $response = new \BearFramework\App\Response\Text('content');
         $this->assertTrue($response->content === 'content');
 
         $this->setExpectedException('InvalidArgumentException');
-        $response = new App\Response\Text(1);
+        $response = new \BearFramework\App\Response\Text(1);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testNotFound()
     {
-        $response = new App\Response\NotFound('content');
+        $response = new \BearFramework\App\Response\NotFound('content');
         $this->assertTrue($response->content === 'content');
 
         $this->setExpectedException('InvalidArgumentException');
-        $response = new App\Response\NotFound(1);
+        $response = new \BearFramework\App\Response\NotFound(1);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testTemporaryUnavailable()
     {
-        $response = new App\Response\TemporaryUnavailable('content');
+        $response = new \BearFramework\App\Response\TemporaryUnavailable('content');
         $this->assertTrue($response->content === 'content');
 
         $this->setExpectedException('InvalidArgumentException');
-        $response = new App\Response\TemporaryUnavailable(1);
+        $response = new \BearFramework\App\Response\TemporaryUnavailable(1);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testPermanentRedirect()
     {
-        $response = new App\Response\PermanentRedirect('http://example.com/');
+        $response = new \BearFramework\App\Response\PermanentRedirect('http://example.com/');
         $this->assertTrue($response->headers['location'] === 'Location: http://example.com/');
 
         $this->setExpectedException('InvalidArgumentException');
-        $response = new App\Response\PermanentRedirect(1);
+        $response = new \BearFramework\App\Response\PermanentRedirect(1);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testTemporaryRedirect()
     {
-        $response = new App\Response\TemporaryRedirect('http://example.com/');
+        $response = new \BearFramework\App\Response\TemporaryRedirect('http://example.com/');
         $this->assertTrue($response->headers['location'] === 'Location: http://example.com/');
 
         $this->setExpectedException('InvalidArgumentException');
-        $response = new App\Response\TemporaryRedirect(1);
+        $response = new \BearFramework\App\Response\TemporaryRedirect(1);
     }
 
 }

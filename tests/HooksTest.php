@@ -8,17 +8,17 @@
  */
 
 /**
- * 
+ * @runTestsInSeparateProcesses
  */
-class HooksTest extends PHPUnit_Framework_TestCase
+class HooksTest extends BearFrameworkTestCase
 {
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testAdd()
     {
-        $app = new App();
+        $app = $this->getApp();
         $app->hooks->add('sampleName', function() {
             echo '123';
         });
@@ -30,11 +30,11 @@ class HooksTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments1()
     {
-        $app = new App();
+        $app = $this->getApp();
         $this->setExpectedException('InvalidArgumentException');
         $app->hooks->add(1, function() {
             echo '123';
@@ -42,21 +42,21 @@ class HooksTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments2()
     {
-        $app = new App();
+        $app = $this->getApp();
         $this->setExpectedException('InvalidArgumentException');
         $app->hooks->add('sampleName', 1);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments3()
     {
-        $app = new App();
+        $app = $this->getApp();
         $app->hooks->add('sampleName', function() {
             echo '123';
         });

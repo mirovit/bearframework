@@ -5,15 +5,18 @@
 
 **A framework born in 2016**
 
-The goal of Bear Framework is to help you start your next web project in less than a minute and help you make it successful. You've got routing, data storage, addons, logging, assets helpers, HTML Server Components and many more useful tools.
+The goal of Bear Framework is to help you start your next web project in less than a minute and help you make it successful. You've got <a href="http://bearframework.com/documentation/routing/">routing</a>, <a href="http://bearframework.com/documentation/data/">data storage</a>, <a href="http://bearframework.com/documentation/addons/">addons</a>, <a href="http://bearframework.com/documentation/logging/">logging</a>, <a href="http://bearframework.com/documentation/assets/">assets helpers</a> and <a href="http://bearframework.com/documentation/">many more useful tools</a>.
 
+[![Build Status](https://travis-ci.org/bearframework/bearframework.svg)](https://travis-ci.org/bearframework/bearframework)
 [![Latest Stable Version](https://poser.pugx.org/bearframework/bearframework/v/stable)](https://packagist.org/packages/bearframework/bearframework)
+[![codecov.io](https://codecov.io/github/bearframework/bearframework/coverage.svg?branch=master)](https://codecov.io/github/bearframework/bearframework?branch=master)
 [![License](https://poser.pugx.org/bearframework/bearframework/license)](https://packagist.org/packages/bearframework/bearframework)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/36a41361218145539175d0fc7b153f0f)](https://www.codacy.com/app/ivo_2/bearframework)
 
 ## Simple and powerful
 
 Bear Framework is one of the easiest PHP frameworks you can find. See for yourself. Here is a simple app that outputs 'Hi'.
-```
+```php
 <?php
 require 'vendor/autoload.php';
 
@@ -30,7 +33,11 @@ $app->run();
 
 * Install via Composer
 ```
-php composer.phar require bearframework/bearframework
+composer require bearframework/bearframework
+```
+or the following command to create a sleketon application
+```
+composer create-project bearframework/app [my-app-name]
 ```
 
 * Download the zip file

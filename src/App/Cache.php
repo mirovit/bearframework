@@ -7,7 +7,9 @@
  * Free to use under the MIT license.
  */
 
-namespace App;
+namespace BearFramework\App;
+
+use BearFramework\App;
 
 /**
  * Data cache
@@ -22,9 +24,9 @@ class Cache
      * @throws \BearCMS\DataCache\NotFoundException
      * @return mixed The saved data from the cache of the default value specified
      */
-    static function get($key, $defaultValue = false)
+    public function get($key, $defaultValue = false)
     {
-        $app = &\App::$instance;
+        $app = &App::$instance;
         $keyMD5 = md5($key);
         $data = $app->data->get(
                 [
@@ -36,41 +38,12 @@ class Cache
             if (strlen($data['metadata.t']) > 0) {
                 if ((int) $data['metadata.t'] > time()) {
                     return unserialize(gzuncompress($data['body']));
-                } else {
-                    return $defaultValue;
                 }
-            } else {
-                return unserialize(gzuncompress($data['body']));
+                return $defaultValue;
             }
-        } else {
-            return $defaultValue;
+            return unserialize(gzuncompress($data['body']));
         }
-    }
-
-    /**
-     * Checks if the data for the key specified exists
-     * @param mixed $key The data key
-     * @return boolean TRUE if the data for the specified key exists in the cache. FALSE otherwise.
-     */
-    static function exists($key)
-    {
-        $app = &\App::$instance;
-        $keyMD5 = md5($key);
-        $data = $app->data->get(
-                [
-                    'key' => '.temp/cache/' . substr($keyMD5, 0, 3) . '/' . substr($keyMD5, 3),
-                    'result' => ['key', 'metadata.t']
-                ]
-        );
-        if (isset($data['key'])) {
-            if (strlen($data['metadata.t']) > 0) {
-                return (int) $data['metadata.t'] > time();
-            } else {
-                return true;
-            }
-        } else {
-            return false;
-        }
+        return $defaultValue;
     }
 
     /**
@@ -81,9 +54,9 @@ class Cache
      * @throws \InvalidArgumentException
      * @return void No value is returned
      */
-    static function set($key, $value, $ttl = 0)
+    public function set($key, $value, $ttl = 0)
     {
-        $app = &\App::$instance;
+        $app = &App::$instance;
         $keyMD5 = md5($key);
         $data = [
             'key' => '.temp/cache/' . substr($keyMD5, 0, 3) . '/' . substr($keyMD5, 3),
@@ -101,9 +74,9 @@ class Cache
      * @throws \InvalidArgumentException
      * @return void No value is returned
      */
-    static function delete($key)
+    public function delete($key)
     {
-        $app = &\App::$instance;
+        $app = &App::$instance;
         $keyMD5 = md5($key);
         $app->data->delete([
             'key' => '.temp/cache/' . substr($keyMD5, 0, 3) . '/' . substr($keyMD5, 3),

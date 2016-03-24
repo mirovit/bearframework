@@ -7,12 +7,12 @@
  * Free to use under the MIT license.
  */
 
-namespace App\Response;
+namespace BearFramework\App\Response;
 
 /**
  * Response type that reads file and outputs it
  */
-class FileReader extends \App\Response
+class FileReader extends \BearFramework\App\Response
 {
 
     /**
@@ -26,7 +26,7 @@ class FileReader extends \App\Response
      * @param string $filename The filename to output
      * @throws \InvalidArgumentException
      */
-    function __construct($filename)
+    public function __construct($filename)
     {
         if (!is_string($filename)) {
             throw new \InvalidArgumentException('The filename argument must be of type string');

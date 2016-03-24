@@ -7,7 +7,9 @@
  * Free to use under the MIT license.
  */
 
-namespace App;
+namespace BearFramework\App;
+
+use BearFramework\App;
 
 /**
  * Data storage
@@ -23,15 +25,15 @@ class Data
 
     /**
      * Returns the instance of the data storage library
-     * @throws \Exception
+     * @throws \BearFramework\App\InvalidConfigOptionException
      * @return \ObjectStorage The instance of the data storage library
      */
     private function getInstance()
     {
         if ($this->instance === null) {
-            $app = &\App::$instance;
+            $app = &App::$instance;
             if ($app->config->dataDir === null) {
-                throw new \Exception('Config option dataDir is not set');
+                throw new App\InvalidConfigOptionException('Config option dataDir is not set');
             }
             $this->instance = new \ObjectStorage($app->config->dataDir);
         }
@@ -43,7 +45,7 @@ class Data
      * @param array $parameters Parameters
      * @return array Array containing the requested parts of the object
      */
-    function get($parameters)
+    public function get($parameters)
     {
         $instance = $this->getInstance();
         return $instance->get($parameters);
@@ -54,7 +56,7 @@ class Data
      * @param array $parameters Parameters
      * @return boolean TRUE on success. FALSE otherwise.
      */
-    function set($parameters)
+    public function set($parameters)
     {
         $instance = $this->getInstance();
         return $instance->set($parameters);
@@ -65,7 +67,7 @@ class Data
      * @param array $parameters Parameters
      * @return boolean TRUE on success. FALSE otherwise.
      */
-    function append($parameters)
+    public function append($parameters)
     {
         $instance = $this->getInstance();
         return $instance->append($parameters);
@@ -76,7 +78,7 @@ class Data
      * @param array $parameters Parameters
      * @return boolean TRUE on success. FALSE otherwise.
      */
-    function duplicate($parameters)
+    public function duplicate($parameters)
     {
         $instance = $this->getInstance();
         return $instance->duplicate($parameters);
@@ -87,7 +89,7 @@ class Data
      * @param array $parameters Parameters
      * @return boolean TRUE on success. FALSE otherwise.
      */
-    function rename($parameters)
+    public function rename($parameters)
     {
         $instance = $this->getInstance();
         return $instance->rename($parameters);
@@ -98,7 +100,7 @@ class Data
      * @param array $parameters Parameters
      * @return boolean TRUE on success. FALSE otherwise.
      */
-    function delete($parameters)
+    public function delete($parameters)
     {
         $instance = $this->getInstance();
         return $instance->delete($parameters);
@@ -109,10 +111,21 @@ class Data
      * @param array $parameters Parameters
      * @return array List of all items matching che search criteria
      */
-    function search($parameters)
+    public function search($parameters)
     {
         $instance = $this->getInstance();
         return $instance->search($parameters);
+    }
+
+    /**
+     * Executes multiple commands
+     * @param array $commands Commands
+     * @return array List of commands results
+     */
+    public function execute($commands)
+    {
+        $instance = $this->getInstance();
+        return $instance->execute($commands);
     }
 
     /**
@@ -121,7 +134,7 @@ class Data
      * @throws \InvalidArgumentException
      * @return boolean TRUE on success. FALSE otherwise.
      */
-    function makePublic($parameters)
+    public function makePublic($parameters)
     {
         if (!is_array($parameters) || !isset($parameters['key']) || !is_string($parameters['key'])) {
             throw new \InvalidArgumentException('');
@@ -141,7 +154,7 @@ class Data
      * @throws \InvalidArgumentException
      * @return boolean TRUE on success. FALSE otherwise.
      */
-    function makePrivate($parameters)
+    public function makePrivate($parameters)
     {
         if (!is_array($parameters) || !isset($parameters['key']) || !is_string($parameters['key'])) {
             throw new \InvalidArgumentException('');
@@ -161,7 +174,7 @@ class Data
      * @throws \InvalidArgumentException
      * @return boolean TRUE if public. FALSE otherwise.
      */
-    function isPublic($key)
+    public function isPublic($key)
     {
         if (!is_string($key)) {
             throw new \InvalidArgumentException('');
@@ -179,18 +192,18 @@ class Data
     /**
      * Returns the filename of the object key specified
      * @param string $key The object key
-     * @throws \Exception
      * @throws \InvalidArgumentException
+     * @throws \BearFramework\App\InvalidConfigOptionException
      * @return The filename of the object key specified
      */
-    function getFilename($key)
+    public function getFilename($key)
     {
         if (!is_string($key)) {
             throw new \InvalidArgumentException('');
         }
-        $app = &\App::$instance;
+        $app = &App::$instance;
         if ($app->config->dataDir === null) {
-            throw new \Exception('Config option dataDir is not set');
+            throw new App\InvalidConfigOptionException('Config option dataDir is not set');
         }
         return $app->config->dataDir . 'objects/' . $key;
     }

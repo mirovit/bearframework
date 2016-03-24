@@ -7,7 +7,9 @@
  * Free to use under the MIT license.
  */
 
-namespace App;
+namespace BearFramework\App;
+
+use BearFramework\App;
 
 /**
  * Provides utility functions for assets
@@ -16,17 +18,32 @@ class Assets
 {
 
     /**
+     * Publicly accessible dirs
+     * @var array
+     */
+    private $dirs = [];
+
+    /**
+     * Registers a directory that will be publicly accessible
+     * @param string $pathname The directory name
+     * @return void No value is returned
+     */
+    public function addDir($pathname)
+    {
+        $this->dirs[] = rtrim($pathname, '/\\') . '/';
+    }
+
+    /**
      * Returns a public URL for the specified filename
      * @param string $filename The filename
      * @param array $options URL options. You can resize the file by providing "width", "height" or both.
-     * @throws \Exception
      * @throws \InvalidArgumentException
+     * @throws \BearFramework\App\InvalidConfigOptionException
      * @return string The URL for the specified filename and options
      */
-    function getUrl($filename, $options = [])
+    public function getUrl($filename, $options = [])
     {
-        // todo extension check za width
-        $app = &\App::$instance;
+        $app = &App::$instance;
         if (!is_string($filename)) {
             throw new \InvalidArgumentException('');
         }
@@ -34,7 +51,7 @@ class Assets
             throw new \InvalidArgumentException('');
         }
         if ($app->config->assetsPathPrefix === null) {
-            throw new \Exception('Config option assetsPathPrefix is not set');
+            throw new App\InvalidConfigOptionException('Config option assetsPathPrefix is not set');
         }
         $optionsString = '';
         ksort($options);
@@ -42,51 +59,45 @@ class Assets
             if ($name === 'width' || $name === 'height') {
                 $value = (int) $value;
                 if ($value < 1) {
-                    $value = 1;
+                    throw new \InvalidArgumentException('');
                 } elseif ($value > 100000) {
-                    $value = 100000;
+                    throw new \InvalidArgumentException('');
                 }
                 $optionsString .= ($name === 'width' ? 'w' : 'h') . $value . '-';
             }
         }
         $optionsString = trim($optionsString, '-');
-        $hash = substr(md5(md5($filename) . md5($optionsString)), 0, 10);
-        $addonsDir = $app->config->addonsDir;
-        if (strlen($addonsDir) > 0 && strpos($filename, $addonsDir) === 0) {
-            if (strpos($filename, '/assets/') === false) {
-                throw new \InvalidArgumentException('Addon asset files must be in ' . $addonsDir . 'addon-name/assets/ or ' . $addonsDir . 'addon-name/*/assets/ directory. This it the only addon directory with public access.');
-            }
-            return $app->request->base . $app->config->assetsPathPrefix . $hash . 'a' . $optionsString . '/' . substr($filename, strlen($addonsDir));
-        }
-        $appDir = $app->config->appDir;
-        if (strlen($appDir) > 0 && strpos($filename, $appDir) === 0) {
-            if (strpos($filename, '/assets/') === false) {
-                throw new \InvalidArgumentException('App asset files must be in ' . $appDir . 'assets/ or ' . $appDir . '*/assets/ directory. This it the only addon directory with public access.');
-            }
-            return $app->request->base . $app->config->assetsPathPrefix . $hash . 'p' . $optionsString . '/' . substr($filename, strlen($appDir));
-        }
+        $hash = md5(md5($filename) . md5($optionsString));
+
         $dataDir = $app->config->dataDir;
         if (strlen($dataDir) > 0 && strpos($filename, $dataDir) === 0) {
             return $app->request->base . $app->config->assetsPathPrefix . $hash . 'd' . $optionsString . '/' . substr($filename, strlen($dataDir) + 8);
         }
-        throw new \InvalidArgumentException('The filename specified is not valid (non existent file or located in dir not specified in the config)');
+
+        foreach ($this->dirs as $dir) {
+            if (strlen($dir) > 0 && strpos($filename, $dir) === 0) {
+                return $app->request->base . $app->config->assetsPathPrefix . $hash . 'a' . $optionsString . '/' . substr($filename, strlen($dir));
+            }
+        }
+
+        throw new \InvalidArgumentException('The filename specified is not valid (non existent file or located in a dir that is not added)');
     }
 
     /**
      * Returns the local filename for a given URL path
      * @param string $path The path part of the asset url
-     * @throws \Exception
      * @throws \InvalidArgumentException
+     * @throws \BearFramework\App\InvalidConfigOptionException
      * @return boolean|string The localfileneme or FALSE if file does not exists
      */
-    function getFilename($path)
+    public function getFilename($path)
     {
         if (!is_string($path)) {
             throw new \InvalidArgumentException('');
         }
-        $app = &\App::$instance;
+        $app = &App::$instance;
         if ($app->config->assetsPathPrefix === null) {
-            throw new \Exception('Config option assetsPathPrefix is not set');
+            throw new App\InvalidConfigOptionException('Config option assetsPathPrefix is not set');
         }
         if (strpos($path, $app->config->assetsPathPrefix) !== 0) {
             return false;
@@ -96,14 +107,22 @@ class Assets
         if (sizeof($partParts) !== 2) {
             return false;
         }
-        $hash = substr($partParts[0], 0, 10);
-        $type = substr($partParts[0], 10, 1);
-        $optionsString = (string) substr($partParts[0], 11);
+        $hash = substr($partParts[0], 0, 32);
+        $type = substr($partParts[0], 32, 1);
+        $optionsString = (string) substr($partParts[0], 33);
         $path = $partParts[1];
-        if ($type === 'a' && strlen($app->config->addonsDir) > 0) {
-            $filename = $app->config->addonsDir . $path;
-        } elseif ($type === 'p' && strlen($app->config->appDir) > 0) {
-            $filename = $app->config->appDir . $path;
+        if ($type === 'a') {
+            $fileDir = null;
+            foreach ($this->dirs as $dir) {
+                if ($hash === md5(md5($dir . $path) . md5($optionsString))) {
+                    $fileDir = $dir;
+                    break;
+                }
+            }
+            if ($fileDir === null) {
+                return false;
+            }
+            $filename = $fileDir . $path;
         } elseif ($type === 'd' && strlen($app->config->dataDir) > 0) {
             if (!$app->data->isPublic($path)) {
                 return false;
@@ -112,52 +131,50 @@ class Assets
         } else {
             return false;
         }
-        if ($hash === substr(md5(md5($filename) . md5($optionsString)), 0, 10)) {
-            if (is_file($filename)) {
-                if ($optionsString === '') {
-                    return $filename;
-                } else {
-                    if ($app->config->dataDir === null) {
-                        throw new \Exception('Config option dataDir is not set');
+        if ($hash === md5(md5($filename) . md5($optionsString)) && is_file($filename)) {
+            if ($optionsString === '') {
+                return is_file($filename) ? $filename : false;
+            }
+            $options = explode('-', $optionsString);
+            $width = null;
+            $height = null;
+            foreach ($options as $option) {
+                if (substr($option, 0, 1) === 'w') {
+                    $value = (int) substr($option, 1);
+                    if ($value >= 1 && $value <= 100000) {
+                        $width = $value;
                     }
-                    $pathinfo = pathinfo($filename);
-                    if (isset($pathinfo['extension'])) {
-                        $tempFilename = $app->config->dataDir . 'objects/.temp/assets/' . md5(md5($filename) . md5($optionsString));
-                        if (!is_file($tempFilename)) {
-                            $options = explode('-', $optionsString);
-                            $width = null;
-                            $height = null;
-                            foreach ($options as $option) {
-                                if (substr($option, 0, 1) === 'w') {
-                                    $value = (int) substr($option, 1);
-                                    if ($value >= 1 && $value <= 100000) {
-                                        $width = $value;
-                                    }
-                                }
-                                if (substr($option, 0, 1) === 'h') {
-                                    $value = (int) substr($option, 1);
-                                    if ($value >= 1 && $value <= 100000) {
-                                        $height = $value;
-                                    }
-                                }
-                            }
-                            if ($width === null && $height === null) {
-                                return false;
-                            }
-                            if ($width === null) {
-                                $imageSize = \App\Utilities\Graphics::getSize($filename);
-                                $width = (int) floor($imageSize[0] / $imageSize[1] * $height);
-                            } elseif ($height === null) {
-                                $imageSize = \App\Utilities\Graphics::getSize($filename);
-                                $height = (int) floor($imageSize[1] / $imageSize[0] * $width);
-                            }
-                            \App\Utilities\File::makeDir($tempFilename);
-                            \App\Utilities\Graphics::resize($filename, $tempFilename, $width, $height, $pathinfo['extension']);
-                        }
-                        return $tempFilename;
+                }
+                if (substr($option, 0, 1) === 'h') {
+                    $value = (int) substr($option, 1);
+                    if ($value >= 1 && $value <= 100000) {
+                        $height = $value;
                     }
                 }
             }
+
+            if ($app->config->dataDir === null) {
+                throw new App\InvalidConfigOptionException('Config option dataDir is not set');
+            }
+            $pathinfo = pathinfo($filename);
+            if (isset($pathinfo['extension'])) {
+                $tempFilename = $app->config->dataDir . 'objects/.temp/assets/' . md5(md5($filename) . md5($optionsString)) . '.' . $pathinfo['extension'];
+                if (!is_file($tempFilename)) {
+                    $app->filesystem->makeFileDir($tempFilename);
+                    if ($width !== null || $height !== null) {
+                        if ($width === null) {
+                            $imageSize = $app->images->getSize($filename);
+                            $width = (int) floor($imageSize[0] / $imageSize[1] * $height);
+                        } elseif ($height === null) {
+                            $imageSize = $app->images->getSize($filename);
+                            $height = (int) floor($imageSize[1] / $imageSize[0] * $width);
+                        }
+                        $app->images->resize($filename, $tempFilename, $width, $height, $pathinfo['extension']);
+                    }
+                }
+                return $tempFilename;
+            }
+            return false;
         }
         return false;
     }
@@ -168,7 +185,7 @@ class Assets
      * @throws \InvalidArgumentException
      * @return string|null The mimetype of the filename specified
      */
-    function getMimeType($filename)
+    public function getMimeType($filename)
     {
         if (!is_string($filename)) {
             throw new \InvalidArgumentException('');

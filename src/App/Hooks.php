@@ -7,7 +7,7 @@
  * Free to use under the MIT license.
  */
 
-namespace App;
+namespace BearFramework\App;
 
 /**
  * Provides functionality for notifications and data requests
@@ -28,7 +28,7 @@ class Hooks
      * @throws \InvalidArgumentException
      * @return void No value is returned
      */
-    function add($name, $callback)
+    public function add($name, $callback)
     {
         if (!is_string($name)) {
             throw new \InvalidArgumentException('');
@@ -48,7 +48,7 @@ class Hooks
      * @throws \InvalidArgumentException
      * @return void No value is returned
      */
-    function execute($name)
+    public function execute($name)
     {
         if (!is_string($name)) {
             throw new \InvalidArgumentException('');

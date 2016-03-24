@@ -8,22 +8,22 @@
  */
 
 /**
- * 
+ * @runTestsInSeparateProcesses
  */
-class RoutesTest extends PHPUnit_Framework_TestCase
+class RoutesTest extends BearFrameworkTestCase
 {
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testHomePage()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/');
+        $app->request->path = new \BearFramework\App\Request\Path('/');
         $app->request->method = 'GET';
         $app->routes->add('/', function() {
-            return new \App\Response\HTML('Hi from the home page');
+            return new \BearFramework\App\Response\HTML('Hi from the home page');
         });
 
         $app->run();
@@ -31,16 +31,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testPage()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/');
         $app->request->method = 'GET';
         $app->routes->add('/products/', function() {
-            return new \App\Response\HTML('Hi from the products page');
+            return new \BearFramework\App\Response\HTML('Hi from the products page');
         });
 
         $app->run();
@@ -48,16 +48,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testWildcard1()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/laptop/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/laptop/');
         $app->request->method = 'GET';
         $app->routes->add('/products/*', function() {
-            return new \App\Response\HTML('Hi from the product page');
+            return new \BearFramework\App\Response\HTML('Hi from the product page');
         });
 
         $app->run();
@@ -65,16 +65,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testWildcard2()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/laptop/options/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/laptop/options/');
         $app->request->method = 'GET';
         $app->routes->add('/products/*', function() {
-            return new \App\Response\HTML('Hi from the product page');
+            return new \BearFramework\App\Response\HTML('Hi from the product page');
         });
 
         $app->run();
@@ -82,16 +82,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testWildcard3()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/laptop/options/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/laptop/options/');
         $app->request->method = 'GET';
         $app->routes->add('/products/*/options/', function() {
-            return new \App\Response\HTML('Hi from the product page');
+            return new \BearFramework\App\Response\HTML('Hi from the product page');
         });
 
         $app->run();
@@ -99,16 +99,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testWildcard4()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/laptop/options/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/laptop/options/');
         $app->request->method = 'GET';
         $app->routes->add('/products/*ions/', function() {
-            return new \App\Response\HTML('Hi from the product page');
+            return new \BearFramework\App\Response\HTML('Hi from the product page');
         });
 
         $app->run();
@@ -116,16 +116,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testQuestionMark1()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/product/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/product/');
         $app->request->method = 'GET';
         $app->routes->add('/products/?/', function() use ($app) {
-            return new \App\Response\HTML($app->request->path[1]);
+            return new \BearFramework\App\Response\HTML($app->request->path[1]);
         });
 
         $app->run();
@@ -133,16 +133,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testQuestionMark1NoMatch()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/');
         $app->request->method = 'GET';
         $app->routes->add('/products/?', function() {
-            return new \App\Response\HTML('');
+            return new \BearFramework\App\Response\HTML('');
         });
 
         $app->run();
@@ -150,16 +150,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testQuestionMark2()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/product/review/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/product/review/');
         $app->request->method = 'GET';
         $app->routes->add('/products/?/review/', function() use ($app) {
-            return new \App\Response\HTML($app->request->path[1]);
+            return new \BearFramework\App\Response\HTML($app->request->path[1]);
         });
 
         $app->run();
@@ -167,16 +167,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testQuestionMark3()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/product/options/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/product/options/');
         $app->request->method = 'GET';
         $app->routes->add('/products/?/?/', function() use ($app) {
-            return new \App\Response\HTML($app->request->path[1] . '-' . $app->request->path[2]);
+            return new \BearFramework\App\Response\HTML($app->request->path[1] . '-' . $app->request->path[2]);
         });
 
         $app->run();
@@ -184,16 +184,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testQuestionMark4()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/product/options/color/blue/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/product/options/color/blue/');
         $app->request->method = 'GET';
         $app->routes->add('/products/?/options/?/blue/', function() use ($app) {
-            return new \App\Response\HTML($app->request->path[1] . '-' . $app->request->path[3]);
+            return new \BearFramework\App\Response\HTML($app->request->path[1] . '-' . $app->request->path[3]);
         });
 
         $app->run();
@@ -201,16 +201,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testQuestionMark5()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/product/options/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/product/options/');
         $app->request->method = 'GET';
         $app->routes->add('/products/?options/', function() use ($app) {
-            return new \App\Response\HTML('product');
+            return new \BearFramework\App\Response\HTML('product');
         });
 
         $app->run();
@@ -218,16 +218,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testQuestionMark6()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/product/options/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/product/options/');
         $app->request->method = 'GET';
         $app->routes->add('/products/?/options/', function() use ($app) {
-            return new \App\Response\HTML($app->request->path[1]);
+            return new \BearFramework\App\Response\HTML($app->request->path[1]);
         });
 
         $app->run();
@@ -235,16 +235,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testQuestionMark7()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/product/options');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/product/options');
         $app->request->method = 'GET';
         $app->routes->add('/products/?/options', function() use ($app) {
-            return new \App\Response\HTML($app->request->path[1]);
+            return new \BearFramework\App\Response\HTML($app->request->path[1]);
         });
 
         $app->run();
@@ -252,16 +252,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testMultipleRoutes1()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/services/');
+        $app->request->path = new \BearFramework\App\Request\Path('/services/');
         $app->request->method = 'GET';
         $app->routes->add(['/services/', '/our-services/'], function() {
-            return new \App\Response\HTML('Hi from the services page');
+            return new \BearFramework\App\Response\HTML('Hi from the services page');
         });
 
         $app->run();
@@ -269,16 +269,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testMultipleRoutes2()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/our-services/');
+        $app->request->path = new \BearFramework\App\Request\Path('/our-services/');
         $app->request->method = 'GET';
         $app->routes->add(['/services/', '/our-services/'], function() {
-            return new \App\Response\HTML('Hi from the services page');
+            return new \BearFramework\App\Response\HTML('Hi from the services page');
         });
 
         $app->run();
@@ -286,16 +286,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testNotFound()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $app->request->path = new \App\Request\Path('/products/');
+        $app->request->path = new \BearFramework\App\Request\Path('/products/');
         $app->request->method = 'GET';
         $app->routes->add('/', function() {
-            return new \App\Response\HTML('Hi from the home page');
+            return new \BearFramework\App\Response\HTML('Hi from the home page');
         });
 
         $app->run();
@@ -303,114 +303,114 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testRouteResponse()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $app->routes->add('/', function() {
-            return new \App\Response\HTML('home');
+            return new \BearFramework\App\Response\HTML('home');
         });
-        $request = new \App\Request();
-        $request->path = new \App\Request\Path('/');
+        $request = new \BearFramework\App\Request();
+        $request->path = new \BearFramework\App\Request\Path('/');
         $request->method = 'GET';
         $response = $app->routes->getResponse($request);
-        $this->assertTrue($response instanceof \App\Response\HTML);
+        $this->assertTrue($response instanceof \BearFramework\App\Response\HTML);
         $this->assertTrue($response->content === 'home');
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testMissingRoute()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $app->routes->add('/', function() {
-            return new \App\Response\HTML('home');
+            return new \BearFramework\App\Response\HTML('home');
         });
-        $request = new \App\Request();
-        $request->path = new \App\Request\Path('/products/');
+        $request = new \BearFramework\App\Request();
+        $request->path = new \BearFramework\App\Request\Path('/products/');
         $request->method = 'GET';
         $response = $app->routes->getResponse($request);
         $this->assertTrue($response === null);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testRouteMethod()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $app->routes->add('/', function() {
-            return new \App\Response\HTML('home');
+            return new \BearFramework\App\Response\HTML('home');
         }, ['GET', 'HTTPS']);
-        $request = new \App\Request();
+        $request = new \BearFramework\App\Request();
         $request->method = 'GET';
         $request->base = 'https://example.com';
-        $request->path = new \App\Request\Path('/');
+        $request->path = new \BearFramework\App\Request\Path('/');
         $response = $app->routes->getResponse($request);
-        $this->assertTrue($response instanceof \App\Response\HTML);
+        $this->assertTrue($response instanceof \BearFramework\App\Response\HTML);
         $this->assertTrue($response->content === 'home');
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testNotMatchingRouteMethod()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $app->routes->add('/', function() {
-            return new \App\Response\HTML('home');
+            return new \BearFramework\App\Response\HTML('home');
         }, ['POST']);
-        $request = new \App\Request();
+        $request = new \BearFramework\App\Request();
         $request->method = 'GET';
         $request->scheme = 'https';
-        $request->path = new \App\Request\Path('/');
+        $request->path = new \BearFramework\App\Request\Path('/');
         $response = $app->routes->getResponse($request);
         $this->assertTrue($response === null);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidResponse()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $app->routes->add('/', function() {
             return 3;
         });
-        $request = new \App\Request();
-        $request->path = new \App\Request\Path('/');
+        $request = new \BearFramework\App\Request();
+        $request->path = new \BearFramework\App\Request\Path('/');
         $request->method = 'GET';
         $response = $app->routes->getResponse($request);
         $this->assertTrue($response === null);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testMissingRoutes()
     {
-        $app = new App();
+        $app = $this->getApp();
 
-        $request = new \App\Request();
-        $request->path = new \App\Request\Path('/');
+        $request = new \BearFramework\App\Request();
+        $request->path = new \BearFramework\App\Request\Path('/');
         $request->method = 'GET';
         $response = $app->routes->getResponse($request);
         $this->assertTrue($response === null);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments1()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $this->setExpectedException('InvalidArgumentException');
         $app->routes->add(1, function() {
@@ -419,11 +419,11 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments2()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $this->setExpectedException('InvalidArgumentException');
         $app->routes->add([], function() {
@@ -432,11 +432,11 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments3()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $this->setExpectedException('InvalidArgumentException');
         $app->routes->add([1], function() {
@@ -445,22 +445,22 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments4()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $this->setExpectedException('InvalidArgumentException');
         $app->routes->add('/', null);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments5()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $this->setExpectedException('InvalidArgumentException');
         $app->routes->add('/', function() {
@@ -469,11 +469,11 @@ class RoutesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments6()
     {
-        $app = new App();
+        $app = $this->getApp();
 
         $this->setExpectedException('InvalidArgumentException');
         $app->routes->getResponse(null);

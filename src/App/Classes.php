@@ -7,7 +7,9 @@
  * Free to use under the MIT license.
  */
 
-namespace App;
+namespace BearFramework\App;
+
+use BearFramework\App;
 
 /**
  * Provides functionality for autoloading classes
@@ -22,13 +24,23 @@ class Classes
     private $data = [];
 
     /**
+     * The constructor
+     */
+    public function __construct()
+    {
+        spl_autoload_register(function ($class) {
+            $this->load($class);
+        });
+    }
+
+    /**
      * Registers a class for autoloading
      * @param string $class The class name
      * @param string $filename The filename that contains the class
      * @throws \InvalidArgumentException
      * @return void No value is returned
      */
-    function add($class, $filename)
+    public function add($class, $filename)
     {
         if (!is_string($class)) {
             throw new \InvalidArgumentException('');
@@ -45,14 +57,13 @@ class Classes
      * @throws \InvalidArgumentException
      * @return void No value is returned
      */
-    function load($class)
+    public function load($class)
     {
         if (!is_string($class)) {
             throw new \InvalidArgumentException('');
         }
-        $app = &\App::$instance;
         if (isset($this->data[$class])) {
-            $app->load($this->data[$class]);
+            include_once $this->data[$class];
         }
     }
 

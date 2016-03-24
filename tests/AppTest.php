@@ -8,27 +8,28 @@
  */
 
 /**
- * 
+ * @runTestsInSeparateProcesses
  */
-class AppTest extends PHPUnit_Framework_TestCase
+class AppTest extends BearFrameworkTestCase
 {
 
     /**
      * 
      */
-    public function testConstructor()
+    public function testConstructor1()
     {
-        $_SERVER['REQUEST_URI'] = '/www/?var1=1';
+        $_SERVER['REQUEST_URI'] = '/?var1=1';
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_SCHEME'] = 'http';
         $_SERVER['SERVER_NAME'] = 'example.com';
-        $_SERVER['SCRIPT_NAME'] = '/www/index.php';
-        $app = new App();
-        $this->assertTrue($app instanceof App);
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $app = new \BearFramework\App();
+        $app->initialize();
+        $this->assertTrue($app instanceof \BearFramework\App);
         $this->assertTrue($app->request->method === 'GET');
         $this->assertTrue($app->request->scheme === 'http');
         $this->assertTrue($app->request->host === 'example.com');
-        $this->assertTrue($app->request->base === 'http://example.com/www');
+        $this->assertTrue($app->request->base === 'http://example.com');
         $this->assertTrue((string) $app->request->path === '/');
         $this->assertTrue((string) $app->request->query === 'var1=1');
     }
@@ -36,75 +37,124 @@ class AppTest extends PHPUnit_Framework_TestCase
     /**
      * 
      */
+    public function testConstructor2()
+    {
+        $_SERVER['REQUEST_URI'] = '/www/?var1=1';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_SCHEME'] = 'https';
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['SCRIPT_NAME'] = '/www/index.php';
+        $app = new \BearFramework\App();
+        $app->initialize();
+        $this->assertTrue($app instanceof \BearFramework\App);
+        $this->assertTrue($app->request->method === 'POST');
+        $this->assertTrue($app->request->scheme === 'https');
+        $this->assertTrue($app->request->host === 'example.com');
+        $this->assertTrue($app->request->base === 'https://example.com/www');
+        $this->assertTrue((string) $app->request->path === '/');
+        $this->assertTrue((string) $app->request->query === 'var1=1');
+    }
+
+    /**
+     * 
+     */
+    public function testUglyURLs()
+    {
+        $_SERVER['REQUEST_URI'] = '/www/index.php/path1/';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_SCHEME'] = 'http';
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['SCRIPT_NAME'] = '/www/index.php';
+        $app = $this->getApp();
+        $this->assertTrue($app instanceof \BearFramework\App);
+        $this->assertTrue($app->request->base === 'http://example.com/www');
+        $this->assertTrue((string) $app->request->path === '/path1/');
+    }
+
+    /**
+     * 
+     */
     public function testAutoload()
     {
-        $this->assertTrue(class_exists('\App\Response'));
-        $this->assertFalse(class_exists('\App\MissingClass'));
+        $this->assertTrue(class_exists('\BearFramework\App\Response'));
+        $this->assertFalse(class_exists('\BearFramework\App\MissingClass'));
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
-    public function testLoad()
+    public function testAppIndex()
     {
-        $app = new App();
-        $this->assertTrue($app->load('src/App/Cache.php'));
-        $this->assertFalse($app->load('src/App/MissingClass.php'));
-        $this->setExpectedException('InvalidArgumentException');
-        $app->load(1);
+        $app = $this->getApp();
+        $this->createFile($app->config->appDir . 'index.php', '<?php
+
+');
+        // todo - must be inside index.php
+        $app->routes->add('/', function() {
+            return new \BearFramework\App\Response('content');
+        });
+        $app->run();
+        $this->expectOutputString('content');
     }
 
     /**
-     * @runInSeparateProcess
-     */
-    public function testGetUrl()
-    {
-        $app = new App();
-        $app->request->base = "https://example.com/www";
-        $this->assertTrue($app->getUrl('/') === "https://example.com/www/");
-        $this->assertTrue($app->getUrl('/products/') === "https://example.com/www/products/");
-        $this->setExpectedException('InvalidArgumentException');
-        $app->getUrl(1);
-    }
-
-    /**
-     * @runInSeparateProcess
+     * 
      */
     public function testRunNotFound()
     {
-        $app = new App();
+        $app = $this->getApp();
         $app->run();
         $this->expectOutputString('Not Found');
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testRespond()
     {
-        $app = new App();
-        $app->respond(new \App\Response('The end'));
+        $app = $this->getApp();
+        $app->respond(new \BearFramework\App\Response('The end'));
         $this->expectOutputString('The end');
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testRespondInvalidArgument()
     {
-        $app = new App();
+        $app = $this->getApp();
         $this->setExpectedException('InvalidArgumentException');
         $app->respond(1);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     function testMultipleApps()
     {
-        $app = new App();
+        $app = $this->getApp([], true);
         $this->setExpectedException('Exception');
-        $app = new App();
+        $app = $this->getApp([], true);
+    }
+
+    /**
+     * 
+     */
+    function testClone()
+    {
+        $app = $this->getApp();
+        $this->setExpectedException('Exception');
+        clone($app);
+    }
+
+    /**
+     * 
+     */
+    function testUnserialize()
+    {
+        $app = $this->getApp();
+        $this->setExpectedException('Exception');
+        unserialize(serialize($app));
     }
 
 }

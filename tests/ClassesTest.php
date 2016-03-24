@@ -8,48 +8,48 @@
  */
 
 /**
- * 
+ * @runTestsInSeparateProcesses
  */
-class ClassesTest extends PHPUnit_Framework_TestCase
+class ClassesTest extends BearFrameworkTestCase
 {
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testAdd()
     {
-        $app = new App();
-        $app->classes->add('App\Log', '../src/App/Log.php');
-        $app->classes->load('App\Log');
+        $app = $this->getApp();
+        $this->createFile($app->config->appDir . 'tempClass1.php', '<?php class TempClass1{}');
+        $app->classes->add('TempClass1', $app->config->appDir . 'tempClass1.php');
+        $this->assertTrue(class_exists('TempClass1'));
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments1()
     {
-        $app = new App();
+        $app = $this->getApp();
         $this->setExpectedException('InvalidArgumentException');
         $app->classes->add(1, '../src/App/Log.php');
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments2()
     {
-        $app = new App();
+        $app = $this->getApp();
         $this->setExpectedException('InvalidArgumentException');
-        $app->classes->add('App\Log', 2);
+        $app->classes->add('\BearFramework\App\Log', 2);
     }
 
     /**
-     * @runInSeparateProcess
+     * 
      */
     public function testInvalidArguments3()
     {
-        $app = new App();
-        $app->classes->add('App\Log', '../src/App/Log.php');
+        $app = $this->getApp();
         $this->setExpectedException('InvalidArgumentException');
         $app->classes->load(1);
     }
